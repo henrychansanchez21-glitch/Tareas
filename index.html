@@ -1,789 +1,744 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskMaster - Lista de Tareas Mejorada</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #6c5ce7;
-            --secondary-color: #a29bfe;
-            --accent-color: #fd79a8;
-            --success-color: #00b894;
-            --warning-color: #fdcb6e;
-            --danger-color: #e17055;
-            --light-color: #f7f7f7;
-            --dark-color: #2d3436;
-            --card-bg: #ffffff;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: var(--dark-color);
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-        }
-        
-        h1 {
-            text-align: center;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            font-weight: 700;
-            font-size: 2.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            color: var(--dark-color);
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-            opacity: 0.8;
-        }
-        
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            padding: 25px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        
-        .input-section {
-            display: flex;
-            margin-bottom: 10px;
-            gap: 10px;
-        }
-        
-        .input-group {
-            display: flex;
-            flex: 1;
-            position: relative;
-        }
-        
-        #taskInput {
-            flex: 1;
-            padding: 16px 20px;
-            border: 2px solid #e1e5eb;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s;
-            background-color: var(--light-color);
-        }
-        
-        #taskInput:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
-        }
-        
-        #addTaskBtn {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 16px 25px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
-        }
-        
-        #addTaskBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(108, 92, 231, 0.4);
-        }
-        
-        .search-section {
-            display: flex;
-            margin-bottom: 10px;
-            position: relative;
-        }
-        
-        #searchInput {
-            flex: 1;
-            padding: 16px 20px 16px 50px;
-            border: 2px solid #e1e5eb;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s;
-            background-color: var(--light-color);
-        }
-        
-        #searchInput:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary-color);
-            font-size: 18px;
-        }
-        
-        .controls-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .filter-section {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .filter-btn {
-            background-color: transparent;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .filter-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .filter-btn:hover:not(.active) {
-            background-color: rgba(108, 92, 231, 0.1);
-        }
-        
-        .action-btn {
-            background: linear-gradient(135deg, var(--accent-color), var(--danger-color));
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 10px rgba(253, 121, 168, 0.3);
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(253, 121, 168, 0.4);
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-            border-radius: 15px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-            min-width: 120px;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--dark-color);
-            opacity: 0.8;
-        }
-        
-        .task-list {
-            list-style-type: none;
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-        
-        .task-list::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        .task-list::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .task-list::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 10px;
-        }
-        
-        .task-item {
-            display: flex;
-            align-items: center;
-            padding: 18px;
-            border-bottom: 1px solid #e1e5eb;
-            transition: all 0.3s;
-            animation: fadeIn 0.3s ease;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            background-color: white;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .task-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .task-item.completed {
-            opacity: 0.7;
-            background-color: #f8f9fa;
-        }
-        
-        .task-item.highlight {
-            background-color: rgba(255, 212, 59, 0.2);
-            border-left: 4px solid var(--warning-color);
-        }
-        
-        .task-checkbox {
-            margin-right: 15px;
-            width: 22px;
-            height: 22px;
-            cursor: pointer;
-            accent-color: var(--success-color);
-        }
-        
-        .task-text {
-            flex: 1;
-            font-size: 16px;
-            padding: 5px 0;
-        }
-        
-        .task-item.completed .task-text {
-            text-decoration: line-through;
-            color: #888;
-        }
-        
-        .task-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .delete-btn {
-            background-color: transparent;
-            border: none;
-            color: var(--danger-color);
-            cursor: pointer;
-            font-size: 18px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-        
-        .delete-btn:hover {
-            background-color: rgba(225, 112, 85, 0.1);
-            transform: scale(1.1);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #888;
-        }
-        
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--secondary-color);
-        }
-        
-        .empty-state.hidden {
-            display: none;
-        }
-        
-        .search-info {
-            text-align: center;
-            margin-bottom: 15px;
-            color: var(--primary-color);
-            font-style: italic;
-            padding: 10px;
-            background-color: rgba(108, 92, 231, 0.1);
-            border-radius: 10px;
-        }
-        
-        .search-info.hidden {
-            display: none;
-        }
-        
-        .task-date {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 5px;
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-            
-            .input-section {
-                flex-direction: column;
-            }
-            
-            .controls-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filter-section {
-                justify-content: center;
-            }
-            
-            .stats {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-            
-            .stat-item {
-                width: 100%;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-        }
-        
-        .completed-tasks {
-            margin-top: 30px;
-        }
-        
-        .completed-title {
-            color: var(--success-color);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rutas de Tiendas</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --light-bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #2c3e50;
+      --text-light: #7f8c8d;
+      --border: #e1e5e9;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-hover: 0 6px 16px rgba(0,0,0,0.12);
+      --active-tab: #e3f2fd;
+      --archive-bg: #f0f4f8;
+    }
+
+    body {
+      background-color: var(--light-bg);
+      padding: 24px;
+      max-width: 700px;
+      margin: 0 auto;
+      color: var(--text);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      letter-spacing: -0.5px;
+    }
+
+    /* ✅ NUEVO: Asignación directa */
+    .assignment-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .assign-btn {
+      flex: 1;
+      padding: 14px 8px;
+      font-size: 15px;
+      font-weight: 600;
+      border: 2px solid #ddd;
+      border-radius: 14px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .assign-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .assign-btn.active {
+      border-color: var(--primary);
+      background-color: var(--active-tab);
+      color: var(--primary-dark);
+    }
+
+    .add-task-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      outline: none;
+      background: var(--card-bg);
+      margin-bottom: 20px;
+    }
+
+    .add-task-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    .total-count {
+      background: var(--card-bg);
+      padding: 14px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--primary);
+    }
+
+    .person-counts {
+      display: flex;
+      justify-content: space-between;
+      background: var(--card-bg);
+      padding: 14px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .person-count {
+      text-align: center;
+    }
+
+    .person-name {
+      font-size: 14px;
+      color: var(--text-light);
+      margin-bottom: 4px;
+    }
+
+    .person-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .category-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .category-tab {
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      background: #f1f3f5;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .category-tab.active {
+      background: var(--active-tab);
+      color: var(--primary-dark);
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 16px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      outline: none;
+      margin-bottom: 24px;
+      background: var(--card-bg);
+    }
+
+    .task-list {
+      display: block;
+    }
+
+    .task-item {
+      background: var(--card-bg);
+      padding: 18px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .task-item.archived {
+      background: var(--archive-bg);
+      border-left: 4px solid var(--success);
+    }
+
+    .task-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .task-check {
+      transform: scale(1.25);
+      margin-top: 2px;
+    }
+
+    .task-text {
+      font-size: 17px;
+      font-weight: 500;
+      flex: 1;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .completed .task-text {
+      text-decoration: line-through;
+      color: var(--text-light);
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: bold;
+      color: white;
+    }
+
+    .edit-btn {
+      background: #95a5a6;
+    }
+
+    .delete-btn {
+      background: var(--danger);
+    }
+
+    .task-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    .duration {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .category-badge {
+      background: #e3f2fd;
+      color: var(--primary-dark);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      padding: 28px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 460px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .modal h2 {
+      margin-bottom: 20px;
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-size: 22px;
+    }
+
+    .modal input,
+    .modal select {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      outline: none;
+      margin-bottom: 20px;
+      background: var(--card-bg);
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel {
+      background: #f1f3f5;
+      color: var(--text);
+    }
+
+    .btn-save {
+      background: var(--primary);
+      color: white;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--text-light);
+      margin-top: 40px;
+      font-style: italic;
+      font-size: 16px;
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--success);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      z-index: 2000;
+      opacity: 0;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .clear-all-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, background 0.2s;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1><i class="fas fa-tasks"></i> TaskMaster</h1>
-        <p class="subtitle">Organiza tus tareas de forma eficiente y productiva</p>
-        
-        <div class="card">
-            <div class="input-section">
-                <div class="input-group">
-                    <input type="text" id="taskInput" placeholder="¿Qué necesitas hacer hoy?">
-                </div>
-                <button id="addTaskBtn"><i class="fas fa-plus"></i> Agregar</button>
-            </div>
-            
-            <div class="search-section">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" placeholder="Buscar tareas...">
-            </div>
-        </div>
-        
-        <div class="search-info hidden" id="searchInfo">
-            <i class="fas fa-search"></i> Mostrando resultados para: "<span id="searchTerm"></span>"
-        </div>
-        
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-value" id="totalTasks">0</div>
-                <div class="stat-label">Total Tareas</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="pendingTasks">0</div>
-                <div class="stat-label">Pendientes</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="completedTasks">0</div>
-                <div class="stat-label">Completadas</div>
-            </div>
-        </div>
-        
-        <div class="controls-section">
-            <div class="filter-section">
-                <button class="filter-btn active" data-filter="all"><i class="fas fa-list"></i> Todas</button>
-                <button class="filter-btn" data-filter="pending"><i class="fas fa-clock"></i> Pendientes</button>
-                <button class="filter-btn" data-filter="completed"><i class="fas fa-check-circle"></i> Completadas</button>
-            </div>
-            
-            <button class="action-btn" id="clearAllBtn"><i class="fas fa-trash-alt"></i> Borrar Todo</button>
-        </div>
-        
-        <ul class="task-list" id="taskList">
-            <!-- Las tareas se agregarán aquí dinámicamente -->
-        </ul>
-        
-        <div class="empty-state" id="emptyState">
-            <i class="fas fa-clipboard-list"></i>
-            <h3>No hay tareas en tu lista</h3>
-            <p>¡Agrega una nueva tarea para comenzar a organizar tu día!</p>
-        </div>
-    </div>
+  <header>
+    <h1>Control de Trabajo</h1>
+  </header>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elementos del DOM
-            const taskInput = document.getElementById('taskInput');
-            const addTaskBtn = document.getElementById('addTaskBtn');
-            const searchInput = document.getElementById('searchInput');
-            const taskList = document.getElementById('taskList');
-            const emptyState = document.getElementById('emptyState');
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            const totalTasksSpan = document.getElementById('totalTasks');
-            const completedTasksSpan = document.getElementById('completedTasks');
-            const pendingTasksSpan = document.getElementById('pendingTasks');
-            const searchInfo = document.getElementById('searchInfo');
-            const searchTermSpan = document.getElementById('searchTerm');
-            const clearAllBtn = document.getElementById('clearAllBtn');
-            
-            // Variables de estado
-            let currentFilter = 'all';
-            let currentSearch = '';
-            
-            // Cargar tareas desde localStorage
-            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-            
-            // Función para guardar tareas en localStorage
-            function saveTasks() {
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-                updateStats();
-            }
-            
-            // Función para actualizar estadísticas
-            function updateStats() {
-                const total = tasks.length;
-                const completed = tasks.filter(task => task.completed).length;
-                const pending = total - completed;
-                
-                totalTasksSpan.textContent = total;
-                completedTasksSpan.textContent = completed;
-                pendingTasksSpan.textContent = pending;
-                
-                // Mostrar/ocultar estado vacío
-                if (total === 0) {
-                    emptyState.classList.remove('hidden');
-                    taskList.innerHTML = '';
-                } else {
-                    emptyState.classList.add('hidden');
+  <!-- ✅ NUEVO: Asignación directa con botones -->
+  <div class="assignment-row">
+    <button class="assign-btn" data-person="Henry">👨‍💼<br>Henry</button>
+    <button class="assign-btn" data-person="Carlos">👨‍💻<br>Carlos</button>
+    <button class="assign-btn" data-person="Ammy">👩‍🎨<br>Ammy</button>
+  </div>
+
+  <input type="text" id="quick-task-input" class="add-task-input" placeholder="Escribe la tarea y presiona Enter..." maxlength="150" />
+
+  <div class="total-count">
+    Tareas pendientes: <span id="total-count">0</span>
+  </div>
+
+  <div class="person-counts">
+    <div class="person-count">
+      <div class="person-name">Henry</div>
+      <div class="person-value" id="count-henry">0</div>
+    </div>
+    <div class="person-count">
+      <div class="person-name">Carlos</div>
+      <div class="person-value" id="count-carlos">0</div>
+    </div>
+    <div class="person-count">
+      <div class="person-name">Ammy</div>
+      <div class="person-value" id="count-ammy">0</div>
+    </div>
+  </div>
+
+  <div class="category-tabs">
+    <button class="category-tab active" data-category="all">Todos 👥</button>
+    <button class="category-tab" data-category="Henry">Henry 👨‍💼</button>
+    <button class="category-tab" data-category="Carlos">Carlos 👨‍💻</button>
+    <button class="category-tab" data-category="Ammy">Ammy 👩‍🎨</button>
+    <button class="category-tab" data-category="archived">Archivadas 🗃️</button>
+  </div>
+
+  <input type="text" id="search" class="search-box" placeholder="Buscar en tareas..." />
+
+  <div id="task-list" class="task-list"></div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h2 id="modal-title">Editar Tarea</h2>
+      <input type="text" id="task-input" placeholder="Describe la tarea..." maxlength="150" />
+      <select id="category-input">
+        <option value="Henry">Henry</option>
+        <option value="Carlos">Carlos</option>
+        <option value="Ammy">Ammy</option>
+      </select>
+      <div class="modal-buttons">
+        <button class="btn btn-cancel" id="cancel-btn">Cancelar</button>
+        <button class="btn btn-save" id="save-btn">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <button id="clear-all-btn" class="clear-all-btn" title="Eliminar tareas visibles">🗑️</button>
+
+  <div id="notification" class="notification">¡Tarea asignada! ✅</div>
+
+  <script>
+    const CATEGORIAS = ["Henry", "Carlos", "Ammy"];
+    let tareas = JSON.parse(localStorage.getItem('tareasPro')) || [];
+    let editingId = null;
+    let categoriaActual = 'all';
+    let personaAsignada = null; // Para la asignación directa
+
+    const el = {
+      assignButtons: document.querySelectorAll('.assign-btn'),
+      quickInput: document.getElementById('quick-task-input'),
+      taskList: document.getElementById('task-list'),
+      searchInput: document.getElementById('search'),
+      modal: document.getElementById('modal'),
+      modalTitle: document.getElementById('modal-title'),
+      taskInput: document.getElementById('task-input'),
+      categoryInput: document.getElementById('category-input'),
+      saveBtn: document.getElementById('save-btn'),
+      cancelBtn: document.getElementById('cancel-btn'),
+      notification: document.getElementById('notification'),
+      totalCount: document.getElementById('total-count'),
+      countHenry: document.getElementById('count-henry'),
+      countCarlos: document.getElementById('count-carlos'),
+      countAmmy: document.getElementById('count-ammy'),
+      clearAllBtn: document.getElementById('clear-all-btn')
+    };
+
+    // Formatear duración (en minutos)
+    const formatearDuracion = (minutos) => {
+      if (minutos < 1) return "Menos de 1 min";
+      if (minutos < 60) return `${Math.round(minutos)} min`;
+      const h = Math.floor(minutos / 60);
+      const m = Math.round(minutos % 60);
+      return m === 0 ? `${h}h` : `${h}h ${m}m`;
+    };
+
+    const formatearFecha = (iso) => {
+      return new Date(iso).toLocaleString('es-ES', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
+
+    const mostrarNotificacion = (mensaje = '¡Listo!') => {
+      el.notification.textContent = mensaje;
+      el.notification.classList.add('show');
+      setTimeout(() => el.notification.classList.remove('show'), 2500);
+    };
+
+    const actualizarContadores = () => {
+      const pendientes = tareas.filter(t => !t.completada);
+      el.totalCount.textContent = pendientes.length;
+      
+      const conteo = { Henry: 0, Carlos: 0, Ammy: 0 };
+      pendientes.forEach(t => {
+        if (conteo.hasOwnProperty(t.categoria)) {
+          conteo[t.categoria]++;
+        }
+      });
+
+      el.countHenry.textContent = conteo.Henry;
+      el.countCarlos.textContent = conteo.Carlos;
+      el.countAmmy.textContent = conteo.Ammy;
+    };
+
+    const guardarTareas = () => {
+      localStorage.setItem('tareasPro', JSON.stringify(tareas));
+      actualizarContadores();
+    };
+
+    const esDuplicado = (texto, categoria, idIgnorar = null) => {
+      return tareas.some(t => 
+        t.id !== idIgnorar &&
+        t.texto.trim().toLowerCase() === texto.trim().toLowerCase() &&
+        t.categoria === categoria
+      );
+    };
+
+    const renderTareas = () => {
+      let tareasFiltradas = [];
+
+      if (categoriaActual === 'archived') {
+        tareasFiltradas = tareas.filter(t => t.completada);
+      } else if (categoriaActual === 'all') {
+        tareasFiltradas = tareas.filter(t => !t.completada);
+      } else {
+        tareasFiltradas = tareas.filter(t => !t.completada && t.categoria === categoriaActual);
+      }
+
+      const busqueda = el.searchInput.value.toLowerCase();
+      if (busqueda) {
+        tareasFiltradas = tareasFiltradas.filter(t => t.texto.toLowerCase().includes(busqueda));
+      }
+
+      if (tareasFiltradas.length === 0) {
+        let mensaje = 'No hay tareas para mostrar.';
+        if (categoriaActual === 'archived') mensaje = 'No hay tareas archivadas.';
+        el.taskList.innerHTML = `<p class="empty">${mensaje}</p>`;
+      } else {
+        el.taskList.innerHTML = tareasFiltradas.map(t => {
+          let duracionHTML = '';
+          if (t.completada && t.fechaCompletada) {
+            const diff = new Date(t.fechaCompletada) - new Date(t.fecha);
+            const minutos = diff / (1000 * 60);
+            duracionHTML = `<span class="duration">✅ ${formatearDuracion(minutos)}</span>`;
+          }
+
+          return `
+            <div class="task-item ${t.completada ? 'archived' : ''}">
+              <div class="task-header">
+                ${categoriaActual === 'archived' ? 
+                  '<span style="width:28px; text-align:center;">✓</span>' : 
+                  `<input type="checkbox" class="task-check" data-id="${t.id}" ${t.completada ? 'checked' : ''}>`
                 }
+                <div class="task-text">${t.texto}</div>
+                <div class="task-actions">
+                  ${categoriaActual === 'archived' ? '' : 
+                    `<button class="action-btn edit-btn" data-id="${t.id}" title="Editar">✎</button>`
+                  }
+                  <button class="action-btn delete-btn" data-id="${t.id}" title="Eliminar">×</button>
+                </div>
+              </div>
+              <div class="task-meta">
+                <span>${formatearFecha(t.fecha)}</span>
+                <div>
+                  ${duracionHTML}
+                  <span class="category-badge">${t.categoria}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      if (categoriaActual !== 'archived') {
+        document.querySelectorAll('.task-check').forEach(cb => {
+          cb.addEventListener('change', () => {
+            const id = cb.dataset.id;
+            const tarea = tareas.find(t => t.id == id);
+            if (tarea && !tarea.completada) {
+              tarea.completada = true;
+              tarea.fechaCompletada = new Date().toISOString(); // ✅ Marca hora de finalización
+              guardarTareas();
+              renderTareas();
+              mostrarNotificacion('✅ Tarea archivada');
             }
-            
-            // Función para agregar una tarea
-            function addTask() {
-                const taskText = taskInput.value.trim();
-                
-                if (taskText === '') {
-                    showNotification('Por favor, escribe una tarea', 'warning');
-                    return;
-                }
-                
-                const newTask = {
-                    id: Date.now(),
-                    text: taskText,
-                    completed: false,
-                    createdAt: new Date().toLocaleString('es-ES')
-                };
-                
-                tasks.push(newTask);
-                saveTasks();
-                renderTasks();
-                taskInput.value = '';
-                taskInput.focus();
-                
-                showNotification('Tarea agregada correctamente', 'success');
-            }
-            
-            // Función para eliminar una tarea
-            function deleteTask(id) {
-                tasks = tasks.filter(task => task.id !== id);
-                saveTasks();
-                renderTasks();
-                showNotification('Tarea eliminada', 'info');
-            }
-            
-            // Función para borrar todas las tareas
-            function clearAllTasks() {
-                if (tasks.length === 0) {
-                    showNotification('No hay tareas para eliminar', 'warning');
-                    return;
-                }
-                
-                if (confirm('¿Estás seguro de que quieres eliminar todas las tareas? Esta acción no se puede deshacer.')) {
-                    tasks = [];
-                    saveTasks();
-                    renderTasks();
-                    showNotification('Todas las tareas han sido eliminadas', 'info');
-                }
-            }
-            
-            // Función para alternar el estado de una tarea
-            function toggleTask(id) {
-                tasks = tasks.map(task => {
-                    if (task.id === id) {
-                        const updatedTask = { ...task, completed: !task.completed };
-                        if (updatedTask.completed) {
-                            showNotification('¡Tarea completada!', 'success');
-                        }
-                        return updatedTask;
-                    }
-                    return task;
-                });
-                saveTasks();
-                renderTasks();
-            }
-            
-            // Función para resaltar texto de búsqueda
-            function highlightText(text, searchTerm) {
-                if (!searchTerm) return text;
-                
-                const regex = new RegExp(`(${searchTerm})`, 'gi');
-                return text.replace(regex, '<mark>$1</mark>');
-            }
-            
-            // Función para mostrar notificaciones
-            function showNotification(message, type) {
-                // Crear elemento de notificación
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                notification.innerHTML = `
-                    <div class="notification-content">
-                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
-                        <span>${message}</span>
-                    </div>
-                `;
-                
-                // Estilos para la notificación
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: ${type === 'success' ? 'var(--success-color)' : type === 'warning' ? 'var(--warning-color)' : type === 'info' ? 'var(--primary-color)' : 'var(--danger-color)'};
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: 10px;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-                    z-index: 1000;
-                    transform: translateX(150%);
-                    transition: transform 0.3s ease;
-                    max-width: 300px;
-                `;
-                
-                document.body.appendChild(notification);
-                
-                // Animación de entrada
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(0)';
-                }, 100);
-                
-                // Animación de salida después de 3 segundos
-                setTimeout(() => {
-                    notification.style.transform = 'translateX(150%)';
-                    setTimeout(() => {
-                        document.body.removeChild(notification);
-                    }, 300);
-                }, 3000);
-            }
-            
-            // Función para renderizar las tareas
-            function renderTasks() {
-                taskList.innerHTML = '';
-                
-                let filteredTasks = tasks;
-                
-                // Aplicar filtro
-                if (currentFilter === 'pending') {
-                    filteredTasks = tasks.filter(task => !task.completed);
-                } else if (currentFilter === 'completed') {
-                    filteredTasks = tasks.filter(task => task.completed);
-                }
-                
-                // Aplicar búsqueda
-                if (currentSearch) {
-                    filteredTasks = filteredTasks.filter(task => 
-                        task.text.toLowerCase().includes(currentSearch.toLowerCase())
-                    );
-                    
-                    // Mostrar información de búsqueda
-                    searchInfo.classList.remove('hidden');
-                    searchTermSpan.textContent = currentSearch;
-                } else {
-                    searchInfo.classList.add('hidden');
-                }
-                
-                if (filteredTasks.length === 0) {
-                    const noResults = document.createElement('li');
-                    noResults.className = 'empty-state';
-                    noResults.innerHTML = `
-                        <i class="fas fa-search"></i>
-                        <h3>No se encontraron tareas</h3>
-                        <p>${currentSearch ? `No hay resultados para "${currentSearch}"` : 'No hay tareas que mostrar con el filtro actual'}</p>
-                    `;
-                    taskList.appendChild(noResults);
-                    return;
-                }
-                
-                // Separar tareas completadas y pendientes
-                const pendingTasks = filteredTasks.filter(task => !task.completed);
-                const completedTasks = filteredTasks.filter(task => task.completed);
-                
-                // Renderizar tareas pendientes primero
-                pendingTasks.forEach(task => {
-                    createTaskElement(task);
-                });
-                
-                // Renderizar tareas completadas después
-                if (completedTasks.length > 0 && currentFilter !== 'pending') {
-                    const completedHeader = document.createElement('li');
-                    completedHeader.className = 'completed-title';
-                    completedHeader.innerHTML = `<i class="fas fa-check-circle"></i> Tareas Completadas (${completedTasks.length})`;
-                    completedHeader.style.cssText = 'padding: 15px 0; font-weight: bold; border: none; background: none; box-shadow: none;';
-                    taskList.appendChild(completedHeader);
-                    
-                    completedTasks.forEach(task => {
-                        createTaskElement(task);
-                    });
-                }
-                
-                updateStats();
-            }
-            
-            // Función para crear elemento de tarea
-            function createTaskElement(task) {
-                const taskItem = document.createElement('li');
-                const isHighlighted = currentSearch && 
-                    task.text.toLowerCase().includes(currentSearch.toLowerCase());
-                
-                taskItem.className = `task-item ${task.completed ? 'completed' : ''} ${
-                    isHighlighted ? 'highlight' : ''
-                }`;
-                
-                taskItem.innerHTML = `
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
-                    <div style="flex: 1;">
-                        <div class="task-text">${highlightText(task.text, currentSearch)}</div>
-                        <div class="task-date"><i class="far fa-clock"></i> ${task.createdAt}</div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="delete-btn" title="Eliminar tarea"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-                
-                // Eventos para los elementos de la tarea
-                const checkbox = taskItem.querySelector('.task-checkbox');
-                const deleteBtn = taskItem.querySelector('.delete-btn');
-                
-                checkbox.addEventListener('change', () => toggleTask(task.id));
-                deleteBtn.addEventListener('click', () => deleteTask(task.id));
-                
-                taskList.appendChild(taskItem);
-            }
-            
-            // Filtros
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Remover clase active de todos los botones
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    // Agregar clase active al botón clickeado
-                    this.classList.add('active');
-                    // Actualizar filtro actual
-                    currentFilter = this.dataset.filter;
-                    // Renderizar tareas con el filtro seleccionado
-                    renderTasks();
-                });
-            });
-            
-            // Búsqueda
-            searchInput.addEventListener('input', function() {
-                currentSearch = this.value.trim();
-                renderTasks();
-            });
-            
-            // Event Listeners
-            addTaskBtn.addEventListener('click', addTask);
-            
-            taskInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addTask();
-                }
-            });
-            
-            clearAllBtn.addEventListener('click', clearAllTasks);
-            
-            // Inicializar la aplicación
-            renderTasks();
-            taskInput.focus();
+          });
         });
-    </script>
+      }
+
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          tareas = tareas.filter(t => t.id != id);
+          guardarTareas();
+          renderTareas();
+        });
+      });
+
+      if (categoriaActual !== 'archived') {
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const tarea = tareas.find(t => t.id == id);
+            if (tarea) {
+              editingId = tarea.id;
+              el.modalTitle.textContent = 'Editar Tarea';
+              el.taskInput.value = tarea.texto;
+              el.categoryInput.value = tarea.categoria;
+              el.modal.style.display = 'flex';
+              el.taskInput.focus();
+            }
+          });
+        });
+      }
+    };
+
+    // Asignación directa
+    el.assignButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        el.assignButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        personaAsignada = btn.dataset.person;
+        el.quickInput.focus();
+      });
+    });
+
+    // Agregar tarea con Enter
+    el.quickInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const texto = el.quickInput.value.trim();
+        if (!texto) {
+          mostrarNotificacion('⚠️ Escribe una tarea');
+          return;
+        }
+        if (!personaAsignada) {
+          mostrarNotificacion('⚠️ Selecciona a quién asignar');
+          return;
+        }
+
+        if (esDuplicado(texto, personaAsignada)) {
+          mostrarNotificacion('⚠️ Ya existe esta tarea');
+          return;
+        }
+
+        tareas.unshift({
+          id: Date.now(),
+          texto,
+          categoria: personaAsignada,
+          fecha: new Date().toISOString(),
+          completada: false
+        });
+
+        guardarTareas();
+        renderTareas();
+        mostrarNotificacion(`✅ Asignada a ${personaAsignada}`);
+        el.quickInput.value = '';
+        personaAsignada = null;
+        el.assignButtons.forEach(b => b.classList.remove('active'));
+      }
+    });
+
+    // Pestañas
+    document.querySelectorAll('.category-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.category-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        categoriaActual = btn.dataset.category;
+        renderTareas();
+      });
+    });
+
+    el.searchInput.addEventListener('input', renderTareas);
+
+    // Modal
+    el.cancelBtn.addEventListener('click', () => {
+      el.modal.style.display = 'none';
+    });
+
+    el.saveBtn.addEventListener('click', () => {
+      const texto = el.taskInput.value.trim();
+      const categoria = el.categoryInput.value;
+      if (!texto) return;
+
+      if (esDuplicado(texto, categoria, editingId)) {
+        mostrarNotificacion('⚠️ Tarea duplicada');
+        return;
+      }
+
+      if (editingId !== null) {
+        const tarea = tareas.find(t => t.id == editingId);
+        if (tarea) {
+          tarea.texto = texto;
+          tarea.categoria = categoria;
+        }
+        mostrarNotificacion('✅ Tarea actualizada');
+      }
+
+      guardarTareas();
+      renderTareas();
+      el.modal.style.display = 'none';
+    });
+
+    el.clearAllBtn.addEventListener('click', () => {
+      let tareasAEliminar = [];
+      if (categoriaActual === 'archived') {
+        tareasAEliminar = tareas.filter(t => t.completada);
+      } else {
+        tareasAEliminar = tareas.filter(t => !t.completada);
+      }
+
+      if (tareasAEliminar.length === 0) {
+        mostrarNotificacion(`⚠️ No hay tareas ${categoriaActual === 'archived' ? 'archivadas' : 'pendientes'} para eliminar`);
+        return;
+      }
+
+      if (confirm(`⚠️ ¿Eliminar ${tareasAEliminar.length} tareas ${categoriaActual === 'archived' ? 'archivadas' : 'pendientes'}?`)) {
+        const ids = tareasAEliminar.map(t => t.id);
+        tareas = tareas.filter(t => !ids.includes(t.id));
+        guardarTareas();
+        renderTareas();
+        mostrarNotificacion(`🗑️ ${tareasAEliminar.length} tareas eliminadas`);
+      }
+    });
+
+    // Iniciar
+    actualizarContadores();
+    renderTareas();
+    el.quickInput.focus();
+  </script>
 </body>
 </html>
