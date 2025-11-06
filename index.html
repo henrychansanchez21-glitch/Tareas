@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Lista de Tareas con Búsqueda</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --accent-color: #ff6b6b;
+            --light-color: #f5f7fa;
+            --dark-color: #333;
+            --success-color: #51cf66;
+            --warning-color: #ffd43b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        .input-section {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex: 1;
+        }
+        
+        #taskInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e1e5eb;
+            border-radius: 5px 0 0 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        #taskInput:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        #addTaskBtn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        #addTaskBtn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .search-section {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        #searchInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e1e5eb;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%234a6fa5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+            background-repeat: no-repeat;
+            background-position: 15px center;
+            padding-left: 45px;
+        }
+        
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .filter-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .filter-btn:hover:not(.active) {
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e1e5eb;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .task-list {
+            list-style-type: none;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e1e5eb;
+            transition: all 0.3s;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .task-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .task-item.completed {
+            opacity: 0.7;
+        }
+        
+        .task-item.highlight {
+            background-color: rgba(255, 212, 59, 0.2);
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .task-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .task-text {
+            flex: 1;
+            font-size: 16px;
+        }
+        
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .delete-btn {
+            background-color: transparent;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .delete-btn:hover {
+            background-color: rgba(255, 107, 107, 0.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+        
+        .empty-state.hidden {
+            display: none;
+        }
+        
+        .search-info {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-style: italic;
+        }
+        
+        .search-info.hidden {
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .input-section {
+                flex-direction: column;
+            }
+            
+            .input-group {
+                width: 100%;
+            }
+            
+            #taskInput {
+                border-radius: 5px;
+            }
+            
+            #addTaskBtn {
+                border-radius: 5px;
+                width: 100%;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mi Lista de Tareas</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <input type="text" id="taskInput" placeholder="Escribe una nueva tarea...">
+                <button id="addTaskBtn">Agregar</button>
+            </div>
+        </div>
+        
+        <div class="search-section">
+            <input type="text" id="searchInput" placeholder="Buscar tareas...">
+        </div>
+        
+        <div class="search-info hidden" id="searchInfo">
+            Mostrando resultados para: "<span id="searchTerm"></span>"
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">Total: <span id="totalTasks">0</span></div>
+            <div class="stat-item">Completadas: <span id="completedTasks">0</span></div>
+            <div class="stat-item">Pendientes: <span id="pendingTasks">0</span></div>
+        </div>
+        
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">Todas</button>
+            <button class="filter-btn" data-filter="pending">Pendientes</button>
+            <button class="filter-btn" data-filter="completed">Completadas</button>
+        </div>
+        
+        <ul class="task-list" id="taskList">
+            <!-- Las tareas se agregarán aquí dinámicamente -->
+        </ul>
+        
+        <div class="empty-state" id="emptyState">
+            <p>No hay tareas en tu lista. ¡Agrega una nueva tarea para comenzar!</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del DOM
+            const taskInput = document.getElementById('taskInput');
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            const searchInput = document.getElementById('searchInput');
+            const taskList = document.getElementById('taskList');
+            const emptyState = document.getElementById('emptyState');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const totalTasksSpan = document.getElementById('totalTasks');
+            const completedTasksSpan = document.getElementById('completedTasks');
+            const pendingTasksSpan = document.getElementById('pendingTasks');
+            const searchInfo = document.getElementById('searchInfo');
+            const searchTermSpan = document.getElementById('searchTerm');
+            
+            // Variables de estado
+            let currentFilter = 'all';
+            let currentSearch = '';
+            
+            // Cargar tareas desde localStorage
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            
+            // Función para guardar tareas en localStorage
+            function saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                updateStats();
+            }
+            
+            // Función para actualizar estadísticas
+            function updateStats() {
+                const total = tasks.length;
+                const completed = tasks.filter(task => task.completed).length;
+                const pending = total - completed;
+                
+                totalTasksSpan.textContent = total;
+                completedTasksSpan.textContent = completed;
+                pendingTasksSpan.textContent = pending;
+                
+                // Mostrar/ocultar estado vacío
+                if (total === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                }
+            }
+            
+            // Función para agregar una tarea
+            function addTask() {
+                const taskText = taskInput.value.trim();
+                
+                if (taskText === '') {
+                    alert('Por favor, escribe una tarea');
+                    return;
+                }
+                
+                const newTask = {
+                    id: Date.now(),
+                    text: taskText,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                tasks.push(newTask);
+                saveTasks();
+                renderTasks();
+                taskInput.value = '';
+                taskInput.focus();
+            }
+            
+            // Función para eliminar una tarea
+            function deleteTask(id) {
+                if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
+                    tasks = tasks.filter(task => task.id !== id);
+                    saveTasks();
+                    renderTasks();
+                }
+            }
+            
+            // Función para alternar el estado de una tarea
+            function toggleTask(id) {
+                tasks = tasks.map(task => {
+                    if (task.id === id) {
+                        return { ...task, completed: !task.completed };
+                    }
+                    return task;
+                });
+                saveTasks();
+                renderTasks();
+            }
+            
+            // Función para resaltar texto de búsqueda
+            function highlightText(text, searchTerm) {
+                if (!searchTerm) return text;
+                
+                const regex = new RegExp(`(${searchTerm})`, 'gi');
+                return text.replace(regex, '<mark>$1</mark>');
+            }
+            
+            // Función para renderizar las tareas
+            function renderTasks() {
+                taskList.innerHTML = '';
+                
+                let filteredTasks = tasks;
+                
+                // Aplicar filtro
+                if (currentFilter === 'pending') {
+                    filteredTasks = tasks.filter(task => !task.completed);
+                } else if (currentFilter === 'completed') {
+                    filteredTasks = tasks.filter(task => task.completed);
+                }
+                
+                // Aplicar búsqueda
+                if (currentSearch) {
+                    filteredTasks = filteredTasks.filter(task => 
+                        task.text.toLowerCase().includes(currentSearch.toLowerCase())
+                    );
+                    
+                    // Mostrar información de búsqueda
+                    searchInfo.classList.remove('hidden');
+                    searchTermSpan.textContent = currentSearch;
+                } else {
+                    searchInfo.classList.add('hidden');
+                }
+                
+                if (filteredTasks.length === 0) {
+                    const noResults = document.createElement('li');
+                    noResults.className = 'empty-state';
+                    noResults.innerHTML = `
+                        <p>No se encontraron tareas ${
+                            currentSearch ? `para "${currentSearch}"` : ''
+                        }</p>
+                    `;
+                    taskList.appendChild(noResults);
+                    return;
+                }
+                
+                filteredTasks.forEach(task => {
+                    const taskItem = document.createElement('li');
+                    const isHighlighted = currentSearch && 
+                        task.text.toLowerCase().includes(currentSearch.toLowerCase());
+                    
+                    taskItem.className = `task-item ${task.completed ? 'completed' : ''} ${
+                        isHighlighted ? 'highlight' : ''
+                    }`;
+                    
+                    taskItem.innerHTML = `
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                        <span class="task-text">${highlightText(task.text, currentSearch)}</span>
+                        <div class="task-actions">
+                            <button class="delete-btn" title="Eliminar tarea">×</button>
+                        </div>
+                    `;
+                    
+                    // Eventos para los elementos de la tarea
+                    const checkbox = taskItem.querySelector('.task-checkbox');
+                    const deleteBtn = taskItem.querySelector('.delete-btn');
+                    
+                    checkbox.addEventListener('change', () => toggleTask(task.id));
+                    deleteBtn.addEventListener('click', () => deleteTask(task.id));
+                    
+                    taskList.appendChild(taskItem);
+                });
+                
+                updateStats();
+            }
+            
+            // Filtros
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remover clase active de todos los botones
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Agregar clase active al botón clickeado
+                    this.classList.add('active');
+                    // Actualizar filtro actual
+                    currentFilter = this.dataset.filter;
+                    // Renderizar tareas con el filtro seleccionado
+                    renderTasks();
+                });
+            });
+            
+            // Búsqueda
+            searchInput.addEventListener('input', function() {
+                currentSearch = this.value.trim();
+                renderTasks();
+            });
+            
+            // Event Listeners
+            addTaskBtn.addEventListener('click', addTask);
+            
+            taskInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            });
+            
+            // Inicializar la aplicación
+            renderTasks();
+        });
+    </script>
+</body>
+</html>
